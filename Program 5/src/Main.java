@@ -28,15 +28,31 @@ public class Main {
         int loop = 0;
         Pad start = new Pad("1");
         Pad curr = start;
+        Pad temp = start;
         path.add(curr);
         for(int i = 0; i < pads.size(); i++){
             if(curr == start && pads.get(i).isMinimal() && !pads.get(i).isMaximal() && !pads.get(i).isDropped() && pads.get(i).isUseful()){
                 path.add(pads.get(i));
                 curr = pads.get(i);
                 loop = 0;
+                if(i == pads.size()-1){
+                    if(loop == 0){
+                        loop++;
+                        i = 0;
+                    }
+                    else if(loop != 0){
+                        temp.setUsefulFalse();
+                        temp = start;
+                        path = new ArrayList<>();
+                        curr = start;
+                        path.add(curr);
+                        i = 0;
+                        loop = 0;
+                    }
+                }
 //                System.out.println("1");
             }
-            else if(curr != start && curr.getValue().compareTo(pads.get(i).getValue()) == -1 && !curr.getValue().gcd(pads.get(i).getValue()).equals(BigInteger.ONE) && !pads.get(i).isDropped() && pads.get(i).isUseful()){
+            else if(curr != start && curr.getValue().compareTo(pads.get(i).getValue()) == -1 && !curr.getValue().gcd(pads.get(i).getValue()).equals(BigInteger.ONE) && !pads.get(i).isMinimal() && !pads.get(i).isDropped() && pads.get(i).isUseful()){
                 if(pads.get(i).isMaximal() && !pads.get(i).isMinimal()){
                     path.add(pads.get(i));
                     for(int j = 0; j < path.size(); j++){
@@ -89,20 +105,52 @@ public class Main {
 
         path = new ArrayList<>();
         loop = 0;
+        temp = start;
         curr = start;
         path.add(curr);
         for(int i = 0; i < pads.size(); i++){
             if(curr == start && pads.get(i).isMinimal() && !pads.get(i).isMaximal() && !pads.get(i).isDropped() && pads.get(i).isUseful()){
                 path.add(pads.get(i));
                 curr = pads.get(i);
+                temp = pads.get(i);
                 loop = 0;
+                if(i == pads.size()-1){
+                    if(loop == 0){
+                        loop++;
+                        i = 0;
+                    }
+                    else if(loop != 0){
+                        temp.setUsefulFalse();
+                        temp = start;
+                        path = new ArrayList<>();
+                        curr = start;
+                        path.add(curr);
+                        i = 0;
+                        loop = 0;
+                    }
+                }
 //                System.out.println("1");
             }
-            else if(!(pads.get(i).getValue().gcd(curr.getValue()).equals(BigInteger.ONE)) && curr.getValue().compareTo(pads.get(i).getValue()) == -1 && pads.get(i).isUseful()){
+            else if(!(pads.get(i).getValue().gcd(curr.getValue()).equals(BigInteger.ONE)) && curr.getValue().compareTo(pads.get(i).getValue()) == -1 && pads.get(i).isUseful() && path.size() < 4){
                 if(!pads.get(i).isMaximal()){
                     path.add(pads.get(i));
                     curr = pads.get(i);
                     loop = 0;
+                    if(i == pads.size()-1){
+                        if(loop == 0){
+                            loop++;
+                            i = 0;
+                        }
+                        else if(loop != 0 && curr != start){
+                            temp.setUsefulFalse();
+                            temp = start;
+                            path = new ArrayList<>();
+                            curr = start;
+                            path.add(curr);
+                            i = 0;
+                            loop = 0;
+                        }
+                    }
                 }
                 else{
                     path.add(pads.get(i));
@@ -119,13 +167,14 @@ public class Main {
                     loop = 0;
                 }
             }
-            else if((curr.isMinimal() || !curr.isMinimal()) && !curr.isMaximal() && i == pads.size()-1){
+            else if(!curr.isMaximal() && i == pads.size()-1 && !pads.get(i).isMaximal()){
                 if(loop == 0){
                     loop++;
                     i = 0;
                 }
-                else if(loop != 0){
-                    path.get(1).setUsefulFalse();
+                else if(loop != 0 && curr != start){
+                    temp.setUsefulFalse();
+                    temp = start;
                     path = new ArrayList<>();
                     curr = start;
                     path.add(curr);
@@ -133,9 +182,6 @@ public class Main {
                     loop = 0;
                 }
             }
-        }
-        for(int i = 0; i < pads.size(); i++){
-            System.out.println(pads.get(i).toString());
         }
 //        for(int i = 0; i < pads.size(); i++){
 //            if(curr == start && pads.get(i).isMinimal() && !pads.get(i).isMaximal() && !pads.get(i).isDropped()){
@@ -167,7 +213,10 @@ public class Main {
 //            }
 //        }
 
-//        writer.write();
+            for(int i = 0; i < pads.size(); i++){
+            System.out.println(pads.get(i).toString());
+        }
+
         writer.close();
     }
     public static void checkMin(ArrayList<Pad> p){
